@@ -65,19 +65,46 @@ def cezar_odszyfrowanie():
         print("ERROR, klucz nie jest liczbą!")
         return
 
-    result = ""
-    for char in szyfr:
-        if char.isalpha():
-            if char.isupper():
-                result += chr((ord(char) - klucz - 65) % 26 + 65)
+    tekst = ""
+    for znak in szyfr:
+        if znak.isalpha():
+            if znak.isupper():
+                tekst += chr((ord(znak) - klucz - 65) % 26 + 65)
             else:
-                result += chr((ord(char) - klucz - 97) % 26 + 97)
+                tekst += chr((ord(znak) - klucz - 97) % 26 + 97)
         else:
-            result += char
+            tekst += znak
 
-    with open("plain.txt", "w") as file:
-        file.write(result)
+    with open("decrypt.txt", "w") as file:
+        file.write(tekst)
         print("Zapisano tekst odszyfrowany")
 
+
+def cezar_zlamanie_sila():
+    try:
+        with open("crypto.txt", "r") as crypto_file:
+            szyfr = crypto_file.read()
+            print("Wczytano szyfr")
+    except FileNotFoundError:
+        print("ERROR, Brakuje pliku crypto.txt")
+        return
+
+    with open("decrypt.txt", "w") as decrypt_file:
+        for klucz in range(1, 26):
+            tekst = ""
+            for znak in szyfr:
+                if znak.isalpha():
+                    if znak.isupper():
+                        tekst += chr((ord(znak) - klucz - 65) % 26 + 65)
+                    else:
+                        tekst += chr((ord(znak) - klucz - 97) % 26 + 97)
+
+                else:
+                    tekst += znak
+            decrypt_file.write(f"klucz {klucz}:\n{tekst}\n")
+    print("Zapisano wszystkie kandydatury")
+
+
 cezar_szyfrowanie()
-cezar_szyfrowanie()
+cezar_odszyfrowanie()
+cezar_zlamanie_sila()
