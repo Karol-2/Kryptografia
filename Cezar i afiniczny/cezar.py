@@ -1,3 +1,10 @@
+"""
+
+Autor: Karol Krawczykiewicz
+
+"""
+
+
 def cezar_szyfrowanie():
     try:
         with open("key.txt", "r") as file:
@@ -105,6 +112,6 @@ def cezar_zlamanie_sila():
     print("Zapisano wszystkie kandydatury")
 
 
-cezar_szyfrowanie()
-cezar_odszyfrowanie()
-cezar_zlamanie_sila()
+def cezar_kryptoanaliza_jawny():
+    return
+# TODO: cezar jawny
