@@ -87,7 +87,7 @@ def cezar_odszyfrowanie():
         print("Zapisano tekst odszyfrowany")
 
 
-def cezar_zlamanie_sila():
+def cezar_kryptoanaliza_tylko_kryptogram():
     try:
         with open("crypto.txt", "r") as crypto_file:
             szyfr = crypto_file.read()
@@ -112,6 +112,34 @@ def cezar_zlamanie_sila():
     print("Zapisano wszystkie kandydatury")
 
 
-def cezar_kryptoanaliza_jawny():
-    return
-# TODO: cezar jawny
+def cezar_kryptoanaliza_z_jawnym():
+    try:
+        with open("crypto.txt", "r") as f:
+            kryptogram = f.read()
+            print("Wczytano szyfr")
+    except FileNotFoundError:
+        print("ERROR, Brakuje pliku crypto.txt")
+        return
+
+    try:
+        with open("extra.txt", "r") as f:
+            extra = f.read()
+            print("Wczytano tekst dodatkowy")
+    except FileNotFoundError:
+        print("ERROR, Brakuje pliku extra.txt")
+        return
+
+    for i in range(len(kryptogram)):
+        znak = kryptogram[i]
+        if ord(znak) in range(ord('A'), ord('Z') + 1) or ord(znak) in range(ord('a'), ord('z') + 1):
+            znak_w_jawnym = extra[i][
+                i % len(extra[i])]  # znak w tekście jawnym, który odpowiada pozycji znaku w tekście zaszyfrowanym
+            klucz = (ord(znak) - ord(znak_w_jawnym)) % 26
+
+            with open("key-new.txt", "w") as f:
+                f.write(str(klucz))
+                print("Znaleziono klucz!", klucz)
+            return
+
+    print("Nie można znaleźć klucza!")
+

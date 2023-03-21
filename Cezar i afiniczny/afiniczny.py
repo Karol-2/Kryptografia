@@ -99,5 +99,46 @@ def afiniczny_kryptoanaliza_jawny():
 # TODO: afiniczny jawny
 
 def afiniczny_odszyfrowanie():
-    return
-# TODO: afiniczny odszyfrowanie
+    try:
+        with open("key.txt", "r") as file:
+            klucz = file.read().split()
+            a = int(klucz[0])
+            b = int(klucz[1])
+            print("Wczytano klucze")
+    except FileNotFoundError:
+        print("ERROR, Brakuje pliku key.txt")
+        return
+
+    try:
+        with open("crypto.txt", "r") as crypto_file:
+            szyfr = crypto_file.read()
+            print("Wczytano szyfr")
+    except FileNotFoundError:
+        print("ERROR, Brakuje pliku crypto.txt")
+        return
+
+    tekst = ''
+    for znak in szyfr:
+        if znak.isalpha():
+            if znak.isupper():
+                numer_litery = ord(znak) - 65
+            else:
+                numer_litery = ord(znak) - 97
+
+            a_odwrocone = pow(a, -1, 26)
+            odszyfrowany_numer = ((numer_litery - b) * a_odwrocone) % 26
+
+            if znak.isupper():
+                tekst += chr(odszyfrowany_numer + 65)
+            else:
+                tekst += chr(odszyfrowany_numer + 97)
+        else:
+            tekst += znak
+
+    with open("decrypt.txt", "w") as file:
+        file.write(tekst)
+        print("Zapisano tekst odszyfrowany")
+
+
+afiniczny_szyfrowanie()
+afiniczny_odszyfrowanie()

@@ -10,6 +10,7 @@ from cezar import *
 import sys
 
 if __name__ == "__main__":
+    print(sys.argv)
     if len(sys.argv) > 3:
         print("ERROR, zła ilość argumentów!")
         exit()
@@ -20,9 +21,9 @@ if __name__ == "__main__":
         elif '-d' in sys.argv:
             cezar_odszyfrowanie()
         elif '-j' in sys.argv:
-            cezar_kryptoanaliza_jawny()
+            cezar_kryptoanaliza_z_jawnym()
         elif '-k' in sys.argv:
-            cezar_zlamanie_sila()
+            cezar_kryptoanaliza_tylko_kryptogram()
         else:
             print("ERROR, Nieprawidłowe argumenty!")
 
