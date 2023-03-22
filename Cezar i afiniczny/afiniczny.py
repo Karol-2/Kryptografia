@@ -116,7 +116,7 @@ def afiniczny_kryptoanaliza_tylko_kryptogram():
     with open("decrypt.txt","w") as decrypt_file:
         for a in range(1,26):
             if nwd(a,26) == 1:
-                for b in range(1,26):
+                for b in range(26):
                     tekst = ''
                     for znak in szyfr:
                         if znak.isalpha():

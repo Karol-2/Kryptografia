@@ -43,7 +43,7 @@ def cezar_szyfrowanie():
 
     with open("crypto.txt","w") as file:
         file.write(wynik)
-        print("Zapisano tekst zaszyfrowany z crypto.txt")
+        print("Zapisano tekst zaszyfrowany do crypto.txt")
 
 
 def cezar_odszyfrowanie():

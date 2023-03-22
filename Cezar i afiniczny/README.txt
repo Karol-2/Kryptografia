@@ -14,4 +14,6 @@ itp...
 1. Programy na początku wywołania sprawdzają obecność wymaganych plików
 2. Na bieżąco są wyświetlane informacje o wczytaniu i zapisie danego pliku
 3. W razie błędu jest wypisywana wiadomość i program konczy pracę
-4. Kryptoanaliza wyłącznie w oparciu o kryptogram zapisuje wynik w decrypt.txt
+4. Kryptoanaliza wyłącznie w oparciu o kryptogram zapisuje wynik w decrypt.txt w formie:
+klucz(a,b)
+odszyfrowany kluczem tekst
