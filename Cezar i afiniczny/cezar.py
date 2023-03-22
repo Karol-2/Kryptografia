@@ -7,17 +7,17 @@ Autor: Karol Krawczykiewicz
 
 def cezar_szyfrowanie():
     try:
-        with open("key.txt", "r") as file:
+        with open("key.txt","r") as file:
             klucz = file.read().split()[0]
-            print("Wczytano klucz")
+            print("Wczytano klucz z key.txt")
     except FileNotFoundError:
         print("ERROR, Brakuje pliku key.txt")
         return
 
     try:
-        with open("plain.txt", "r") as file:
+        with open("plain.txt","r") as file:
             tekst = file.read()
-            print("Wczytano tekst jawny")
+            print("Wczytano tekst jawny z plain.txt")
     except FileNotFoundError:
         print("ERROR, Brakuje pliku plain.txt")
         return
@@ -41,24 +41,24 @@ def cezar_szyfrowanie():
         else:
             wynik += znak
 
-    with open("crypto.txt", "w") as file:
+    with open("crypto.txt","w") as file:
         file.write(wynik)
-        print("Zapisano tekst zaszyfrowany")
+        print("Zapisano tekst zaszyfrowany z crypto.txt")
 
 
 def cezar_odszyfrowanie():
     try:
-        with open("key.txt", "r") as file:
+        with open("key.txt","r") as file:
             klucz = file.read().split()[0]
-            print("Wczytano klucz")
+            print("Wczytano klucz z key.txt")
     except FileNotFoundError:
         print("ERROR, Brakuje pliku key.txt")
         return
 
     try:
-        with open("crypto.txt", "r") as file:
+        with open("crypto.txt","r") as file:
             szyfr = file.read()
-            print("Wczytano tekst zaszyfrowany")
+            print("Wczytano tekst zaszyfrowany z crypto.txt")
     except FileNotFoundError:
         print("ERROR, Brakuje pliku crypto.txt")
         return
@@ -82,22 +82,22 @@ def cezar_odszyfrowanie():
         else:
             tekst += znak
 
-    with open("decrypt.txt", "w") as file:
+    with open("decrypt.txt","w") as file:
         file.write(tekst)
-        print("Zapisano tekst odszyfrowany")
+        print("Zapisano tekst odszyfrowany do decrypt.txt")
 
 
 def cezar_kryptoanaliza_tylko_kryptogram():
     try:
-        with open("crypto.txt", "r") as crypto_file:
+        with open("crypto.txt","r") as crypto_file:
             szyfr = crypto_file.read()
-            print("Wczytano szyfr")
+            print("Wczytano szyfr z crypto.txt")
     except FileNotFoundError:
         print("ERROR, Brakuje pliku crypto.txt")
         return
 
-    with open("decrypt.txt", "w") as decrypt_file:
-        for klucz in range(1, 26):
+    with open("decrypt.txt","w") as decrypt_file:
+        for klucz in range(1,26):
             tekst = ""
             for znak in szyfr:
                 if znak.isalpha():
@@ -112,34 +112,55 @@ def cezar_kryptoanaliza_tylko_kryptogram():
     print("Zapisano wszystkie kandydatury")
 
 
+def szukanie_klucza(kryptogram,extra):
+    for i in range(len(kryptogram)):
+        znak = kryptogram[i]
+        if ord(znak) in range(ord('A'),ord('Z') + 1) or ord(znak) in range(ord('a'),ord('z') + 1):
+            znak_w_jawnym = extra[i][
+                i % len(extra[i])]  # znak w tekście jawnym, który odpowiada pozycji znaku w tekście zaszyfrowanym
+            klucz = (ord(znak) - ord(znak_w_jawnym)) % 26
+
+            with open("key-new.txt","w") as f:
+                f.write(str(klucz))
+                print("Znaleziono klucz!",klucz)
+                print("Zapisano znaleziony klucz do key-new.txt")
+            return klucz
+    return "Brak"
+
+
 def cezar_kryptoanaliza_z_jawnym():
     try:
-        with open("crypto.txt", "r") as f:
+        with open("crypto.txt","r") as f:
             kryptogram = f.read()
-            print("Wczytano szyfr")
+            print("Wczytano szyfr z crypto.txt")
     except FileNotFoundError:
         print("ERROR, Brakuje pliku crypto.txt")
         return
 
     try:
-        with open("extra.txt", "r") as f:
+        with open("extra.txt","r") as f:
             extra = f.read()
-            print("Wczytano tekst dodatkowy")
+            print("Wczytano tekst dodatkowy z extra.txt")
     except FileNotFoundError:
         print("ERROR, Brakuje pliku extra.txt")
         return
 
-    for i in range(len(kryptogram)):
-        znak = kryptogram[i]
-        if ord(znak) in range(ord('A'), ord('Z') + 1) or ord(znak) in range(ord('a'), ord('z') + 1):
-            znak_w_jawnym = extra[i][
-                i % len(extra[i])]  # znak w tekście jawnym, który odpowiada pozycji znaku w tekście zaszyfrowanym
-            klucz = (ord(znak) - ord(znak_w_jawnym)) % 26
+    klucz = szukanie_klucza(kryptogram,extra)
 
-            with open("key-new.txt", "w") as f:
-                f.write(str(klucz))
-                print("Znaleziono klucz!", klucz)
-            return
+    if klucz != "Brak":
+        tekst = ""
+        for znak in kryptogram:
+            if znak.isalpha():
+                if znak.isupper():
+                    tekst += chr((ord(znak) - klucz - 65) % 26 + 65)
+                else:
+                    tekst += chr((ord(znak) - klucz - 97) % 26 + 97)
+            else:
+                tekst += znak
 
-    print("Nie można znaleźć klucza!")
+        with open("decrypt.txt","w") as file:
+            file.write(tekst)
+            print("Zapisano tekst odszyfrowany do decrypt.txt")
 
+    else:
+        print("Nie można znaleźć klucza!")

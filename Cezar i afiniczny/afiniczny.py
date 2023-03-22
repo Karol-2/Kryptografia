@@ -5,15 +5,21 @@ Autor: Karol Krawczykiewicz
 """
 
 
-def nwd(a, b):
+def nwd(a,b):
     while b != 0:
-        a, b = b, a % b
+        a,b = b,a % b
     return a
+
+
+def odwrotnosc(x):
+    for b in range(26):
+        if ((x * b) % 26) == 1:
+            return b
 
 
 def afiniczny_szyfrowanie():
     try:
-        with open("key.txt", "r") as file:
+        with open("key.txt","r") as file:
             klucze = file.read().split()
             a = int(klucze[0])
             b = int(klucze[1])
@@ -51,9 +57,51 @@ def afiniczny_szyfrowanie():
         else:
             szyfr += znak
 
-    with open("crypto.txt", "w") as file:
+    with open("crypto.txt","w") as file:
         file.write(szyfr)
         print("Zapisano tekst zaszyfrowany do crypto.txt")
+
+
+def afiniczny_odszyfrowanie():
+    try:
+        with open("key.txt","r") as file:
+            klucz = file.read().split()
+            a = int(klucz[0])
+            b = int(klucz[1])
+            print("Wczytano klucze z key.txt")
+    except FileNotFoundError:
+        print("ERROR, Brakuje pliku key.txt")
+        return
+
+    try:
+        with open("crypto.txt","r") as crypto_file:
+            szyfr = crypto_file.read()
+            print("Wczytano szyfr z crypto.txt")
+    except FileNotFoundError:
+        print("ERROR, Brakuje pliku crypto.txt")
+        return
+
+    tekst = ''
+    for znak in szyfr:
+        if znak.isalpha():
+            if znak.isupper():
+                numer_litery = ord(znak) - 65
+            else:
+                numer_litery = ord(znak) - 97
+
+            a_odwrocone = pow(a,-1,26)
+            odszyfrowany_numer = ((numer_litery - b) * a_odwrocone) % 26
+
+            if znak.isupper():
+                tekst += chr(odszyfrowany_numer + 65)
+            else:
+                tekst += chr(odszyfrowany_numer + 97)
+        else:
+            tekst += znak
+
+    with open("decrypt.txt","w") as file:
+        file.write(tekst)
+        print("Zapisano tekst odszyfrowany do decrypt.txt")
 
 
 def afiniczny_kryptoanaliza_tylko_kryptogram():
@@ -92,15 +140,10 @@ def afiniczny_kryptoanaliza_tylko_kryptogram():
     print("Zapisano wszystkie kandydatury do decrypt.txt")
 
 
-def odwrotnosc(x):
-    for b in range(26):
-        if ((x * b) % 26) == 1:
-            return b
-
-
 def afiniczny_kryptoanaliza_z_jawnym():
     kryptogram = []
     extra = []
+
     try:
         with open("crypto.txt","r") as f:
             for line in f:
@@ -127,7 +170,7 @@ def afiniczny_kryptoanaliza_z_jawnym():
 
     for i in range(len(extra) + 1):
         try:
-            x0,x1 = alfabet[extra[i]], alfabet[extra[i + 1]]
+            x0, x1 = alfabet[extra[i]], alfabet[extra[i + 1]]
             y0, y1 = alfabet[kryptogram[i]],  alfabet[kryptogram[i + 1]]
 
         except IndexError:
@@ -142,8 +185,9 @@ def afiniczny_kryptoanaliza_z_jawnym():
             y = (a * x0) % 26
             b = (y0 - y) % 26
             print("Znaleziono klucz, a:",a,"b:",b)
+
             with open("key-new.txt","w") as file:
-                string=f"{a} {b}"
+                string = f"{a} {b}"
                 file.write(string)
                 print("Zapisano klucz do key-new.txt")
 
@@ -174,50 +218,5 @@ def afiniczny_kryptoanaliza_z_jawnym():
             return
 
     print("Nie znaleziono klucza!")
-
-
-afiniczny_kryptoanaliza_z_jawnym()
-
-
-def afiniczny_odszyfrowanie():
-    try:
-        with open("key.txt", "r") as file:
-            klucz = file.read().split()
-            a = int(klucz[0])
-            b = int(klucz[1])
-            print("Wczytano klucze z key.txt")
-    except FileNotFoundError:
-        print("ERROR, Brakuje pliku key.txt")
-        return
-
-    try:
-        with open("crypto.txt", "r") as crypto_file:
-            szyfr = crypto_file.read()
-            print("Wczytano szyfr z crypto.txt")
-    except FileNotFoundError:
-        print("ERROR, Brakuje pliku crypto.txt")
-        return
-
-    tekst = ''
-    for znak in szyfr:
-        if znak.isalpha():
-            if znak.isupper():
-                numer_litery = ord(znak) - 65
-            else:
-                numer_litery = ord(znak) - 97
-
-            a_odwrocone = pow(a, -1, 26)
-            odszyfrowany_numer = ((numer_litery - b) * a_odwrocone) % 26
-
-            if znak.isupper():
-                tekst += chr(odszyfrowany_numer + 65)
-            else:
-                tekst += chr(odszyfrowany_numer + 97)
-        else:
-            tekst += znak
-
-    with open("decrypt.txt", "w") as file:
-        file.write(tekst)
-        print("Zapisano tekst odszyfrowany do decrypt.txt")
 
 

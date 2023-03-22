@@ -10,7 +10,7 @@ from cezar import *
 import sys
 
 if __name__ == "__main__":
-    print(sys.argv)
+
     if len(sys.argv) > 3:
         print("ERROR, zła ilość argumentów!")
         exit()
@@ -33,9 +33,9 @@ if __name__ == "__main__":
         elif '-d' in sys.argv:
             afiniczny_odszyfrowanie()
         elif '-j' in sys.argv:
-            afiniczny_kryptoanaliza_jawny()
+            afiniczny_kryptoanaliza_z_jawnym()
         elif '-k' in sys.argv:
-            afiniczny_zlamanie_sila()
+            afiniczny_kryptoanaliza_tylko_kryptogram()
         else:
             print("ERROR, Nieprawidłowe argumenty!")
     else:
