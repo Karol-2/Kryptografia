@@ -29,14 +29,14 @@ def afiniczny_szyfrowanie():
         return
 
     try:
-        with open("plain.txt", "r") as file:
+        with open("plain.txt","r") as file:
             tekst = file.read()
             print("Wczytano tekst jawny z plain.txt")
     except FileNotFoundError:
         print("ERROR, Brakuje pliku plain.txt")
         return
 
-    if nwd(a, 26) != 1:
+    if nwd(a,26) != 1:
         print('Klucz a musi być względnie pierwszy z 26.')
         return
 
@@ -116,7 +116,7 @@ def afiniczny_kryptoanaliza_tylko_kryptogram():
     with open("decrypt.txt","w") as decrypt_file:
         for a in range(1,26):
             if nwd(a,26) == 1:
-                for b in range(26):
+                for b in range(1,26):
                     tekst = ''
                     for znak in szyfr:
                         if znak.isalpha():
@@ -125,7 +125,7 @@ def afiniczny_kryptoanaliza_tylko_kryptogram():
                             else:
                                 numer_litery = ord(znak) - 97
 
-                            a_odwrocone = pow(a, -1, 26)
+                            a_odwrocone = pow(a,-1,26)
                             odszyfrowany_numer = ((numer_litery - b) * a_odwrocone) % 26
 
                             if znak.isupper():
@@ -170,8 +170,8 @@ def afiniczny_kryptoanaliza_z_jawnym():
 
     for i in range(len(extra) + 1):
         try:
-            x0, x1 = alfabet[extra[i]], alfabet[extra[i + 1]]
-            y0, y1 = alfabet[kryptogram[i]],  alfabet[kryptogram[i + 1]]
+            x0,x1 = alfabet[extra[i]],alfabet[extra[i + 1]]
+            y0,y1 = alfabet[kryptogram[i]],alfabet[kryptogram[i + 1]]
 
         except IndexError:
             print("Nie znaleziono klucza!")
@@ -218,5 +218,3 @@ def afiniczny_kryptoanaliza_z_jawnym():
             return
 
     print("Nie znaleziono klucza!")
-
-
