@@ -89,7 +89,12 @@ def afiniczny_odszyfrowanie():
             else:
                 numer_litery = ord(znak) - 97
 
-            a_odwrocone = pow(a,-1,26)
+            a_odwrocone = odwrotnosc(a)
+
+            if a_odwrocone is None:
+                print("Nie można znaleźć odwrotności!")
+                return
+
             odszyfrowany_numer = ((numer_litery - b) * a_odwrocone) % 26
 
             if znak.isupper():
@@ -202,7 +207,7 @@ def afiniczny_kryptoanaliza_z_jawnym():
                     else:
                         numer_litery = ord(znak) - 97
 
-                    a_odwrocone = pow(a,-1,26)
+                    a_odwrocone = odwrotnosc(a)
                     odszyfrowany_numer = ((numer_litery - b) * a_odwrocone) % 26
 
                     if znak.isupper():
