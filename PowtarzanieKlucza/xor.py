@@ -1,5 +1,8 @@
+"""
+Autor: Karol Krawczykiewicz
+"""
 import re
-
+import sys
 
 def przygotowanie():
     try:
@@ -22,9 +25,6 @@ def przygotowanie():
     with open('plain.txt','w') as f:
         print("Zapisano tekst to plain.txt")
         f.write('\n'.join(linijki))
-
-
-# prepare-test DZIAŁA
 
 
 def szyfrowanie():
@@ -65,52 +65,71 @@ def szyfrowanie():
         zaszyfrowane.append(nowa_linijka)
 
     with open("crypto.txt","w") as f:
+        print("Zapisano szyfr do crypto.txt")
         for rzad in zaszyfrowane:
             f.write(rzad + '\n')
 
 
-def crypto_analysis():
-    with open("crypto.txt","r") as f:
-        text = f.read()
-        text = text.replace("\n","*")
-        text = text.split("*")
-        text.pop(len(text) - 1)
+def krypto_analiza():
+    try:
+        with open("crypto.txt","r") as f:
+            print("Otwarto plik crypto.txt")
+            tekst = f.read().strip().split("\n")
+    except FileNotFoundError:
+        print("Brak pliku key.txt !!!")
+        return
 
-    for index,line in enumerate(text):
-        output = [line[i:i + 8] for i in range(0,len(line),8)]
-        text[index] = output
+    for i in range(len(tekst)):
+        linijka = tekst[i]
+        temp = [linijka[j:j + 8] for j in range(0,len(linijka),8)]
+        tekst[i] = temp
 
-    for row_index,row in enumerate(text):
-        for column_index,column in enumerate(row):
-            reset_char = False
-            if len(column) > 1:
-                if column[1] == "1":
-                    reset_char = column
-                if reset_char:
-                    for i in range(len(text)):
-                        coded_char = text[i][column_index]
-                        coded_line = ""
-                        for j in range(8):
-                            result = int(coded_char[j]) ^ int(reset_char[j])
-                            if result:
-                                coded_line += "1"
-                            else:
-                                coded_line += "0"
-                        if coded_line == "00000000":
-                            text[i][column_index] = " "
-                        else:
-                            text[i][column_index] = chr(int(coded_line,2))
+    for i in range(len(tekst[0])):
+        for j in range(len(tekst)):
+            element = tekst[j][i]
+            if len(element) > 1 and element[1] == "1":
+                reset_key = element
+
+                for k in range(len(tekst)):
+                    zaszyfrowany_znak = tekst[k][i]
+                    odszyfrowany_znak = ""
+
+                    for m in range(8):
+                        xor = int(zaszyfrowany_znak[m]) ^ int(reset_key[m])
+                        odszyfrowany_znak += str(xor)
+
+                    if odszyfrowany_znak == "00000000":
+                        tekst[k][i] = " "
+                    else:
+                        znak = chr(int(odszyfrowany_znak,2))
+                        tekst[k][i] = znak
 
     with open("decrypt.txt","w") as f:
         print("Zapisano rozszyfrowany tekst do decrypt.txt")
-        for row in text:
-            print("zapisano row" + str(row))
-            for char in row:
-                f.write(char.lower())
+        for linijka in tekst:
+            # print("zapisano rzad" + str(linijka))
+            for znak in linijka:
+                f.write(znak.lower())
             f.write("\n")
 
 
 dlugosc_linijek = 64
-przygotowanie()
-szyfrowanie()
-crypto_analysis()
+
+# przygotowanie()
+# szyfrowanie()
+# krypto_analiza()
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("ERROR, zła ilość argumentów!")
+        exit()
+
+    if '-p' in sys.argv:
+        przygotowanie()
+    elif '-e' in sys.argv:
+        szyfrowanie()
+    elif '-k' in sys.argv:
+        krypto_analiza()
+    else:
+        print("ERROR, Nieprawidłowe argumenty!")
