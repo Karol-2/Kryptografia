@@ -1,9 +1,6 @@
 # Copyrights
 # Patryk Wawrzyniak
 
-import random
-import sys
-
 line_len = 64
 
 
@@ -15,7 +12,7 @@ def BinaryToDecimal(binary):
         decimal = decimal + dec * pow(2, i)
         binary = binary // 10
         i += 1
-    return decimal
+
 
 
 def prepare():
@@ -37,17 +34,6 @@ def prepare():
                 line += "Z"
         line += "\n"
         f.write(line)
-    return True
-
-
-def generate_key():
-    # alphabet = "QAZWSXEDCRFVTGBYHNUJMIKOLPqazwsxedcrfvtgbyhnujmikolp1234567890"
-    alphabet = "QAZWSXEDCRFVTGBYHNUJMIKOLPqazwsxedcrfvtgbyhnujmikolp"
-    with open("data/key.txt", "w") as f:
-        for x in range(0, line_len):
-            ch = random.randint(0, len(alphabet) - 1)
-            f.write(alphabet[ch])
-    return True
 
 
 def code():

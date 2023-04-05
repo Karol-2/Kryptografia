@@ -1,28 +1,37 @@
-def prepare_text():
+import re
+
+
+def przygotowanie():
     try:
         with open('orig.txt','r') as f:
             print("Otwarto plik orig.txt")
-            text = f.read().replace('\n',' ').lower()
-        lines = [text[i:i + dlugosc_linijek] for i in range(0,len(text),dlugosc_linijek)]
+            tekst = f.read().replace('\n',' ').lower()
+            tekst = re.sub(r"[^a-z\s]","",tekst) # ususwanie cyfr i znaków specjalnych
+
     except FileNotFoundError:
         print("Brak pliku orig.txt !!!")
         return
 
-    # dopisujemy odpowiednią ilość x w przypadku linii krótszych niż 64
-    for i in range(len(lines)):
-        lines[i] += 'x' * (dlugosc_linijek - len(lines[i]))
+    linijki = []
+    for i in range(0,len(tekst),dlugosc_linijek):
+        linijka = tekst[i:i + dlugosc_linijek]
+        if len(linijka) < dlugosc_linijek:
+            linijka += 'x' * (dlugosc_linijek - len(linijka))  # dopisujemy ciągi 'x' w przypadku linii krótszych niż 64
+        linijki.append(linijka)
 
     with open('plain.txt','w') as f:
         print("Zapisano tekst to plain.txt")
-        f.write('\n'.join(lines))
+        f.write('\n'.join(linijki))
 
 
-def encrypt():
+# prepare-test DZIAŁA
+
+
+def szyfrowanie():
     try:
         with open("plain.txt","r") as f:
             print("Otwarto plik plain.txt")
-            plain = f.read()
-            plain = plain.split("\n")
+            tekst = f.read().splitlines()
     except FileNotFoundError:
         print("Brak pliku plain.txt !!!")
         return
@@ -30,37 +39,34 @@ def encrypt():
     try:
         with open("key.txt","r") as f:
             print("Otwarto plik key.txt")
-            key = f.read()
-            key = ' '.join(format(ord(i),'b') for i in key)
-            key = key.split(" ")
-            for i in range(len(key)):
-                while len(key[i]) != 8:
-                    key[i] = "0" + key[i]
-            key = ''.join(format(x) for x in key)
+            klucz = f.read()
+            klucz = ''.join(format(ord(i),'08b') for i in klucz)
     except FileNotFoundError:
         print("Brak pliku key.txt !!!")
         return
 
-    for l in range(len(plain)):
-        new_line = ""
-        coded_line = ""
-        line = ' '.join(format(ord(i),'b') for i in plain[l])
-        line = line.split(" ")
-        for i in range(len(line)):
-            while len(line[i]) != 8:
-                line[i] = "0" + line[i]
-        line = ''.join(format(x) for x in line)
-        if line != "00000000":
-            for i in range(len(line)):
-                result = int(line[i]) ^ int(key[i])
+    zaszyfrowane = []
 
-                if result:
-                    coded_line += "1"
-                else:
-                    coded_line += "0"
-                new_line = new_line + str(result)
-        with open("crypto.txt","a") as f:
-            f.write(new_line + '\n')
+    for i in range(len(tekst)):
+        nowa_linijka = ""
+        linijka = ' '.join(format(ord(i),'08b') for i in tekst[i])
+        linijka = linijka.split(" ")
+
+        for j in range(len(linijka)):
+            while len(linijka[j]) != 8:
+                linijka[j] = "0" + linijka[j]
+
+        linijka = ''.join(format(x) for x in linijka)
+
+        if linijka != "00000000":
+            for j in range(len(linijka)):
+                xor = int(linijka[j]) ^ int(klucz[j])
+                nowa_linijka = nowa_linijka + str(xor)
+        zaszyfrowane.append(nowa_linijka)
+
+    with open("crypto.txt","w") as f:
+        for rzad in zaszyfrowane:
+            f.write(rzad + '\n')
 
 
 def crypto_analysis():
@@ -103,7 +109,8 @@ def crypto_analysis():
                 f.write(char.lower())
             f.write("\n")
 
+
 dlugosc_linijek = 64
-prepare_text()
-encrypt()
+przygotowanie()
+szyfrowanie()
 crypto_analysis()
