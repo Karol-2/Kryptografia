@@ -1,0 +1,42 @@
+szyfr jednorazowy
+E(m,k) = m +O k = c
+D(c,k) = c +O k = m
+
+co gdyby ten klucz był powtarzany , gdyby były dwie wiadomości zaszyfrowane tym samym kluczem
+
+m1 + k = c1
+m2 + k = c2
+
+m1 + m2 = c1 + c2
+
+tekst jawny jest w 
+m należącym { , a-z, A-Z}
+
+0010000 spacja
+01.... litery
+
+patrzymy ile jest różnych elementów
+założmy m1 != m2
+lit1 + lit2   to 01 coś + 01 coś
+ to na początku są dwa zera wiemy
+
+jeżeli litera + spacja = to litera i spacja ma xor 01...
+
+trzeba to ubrać w przykład przekonywujący jak to wygląda
+tekst jawny
+linijki pisane długości np. 64, tylko litery i spacje w ang, unikać spacji na początku 10 albo 20 linijek
+
+jeden klucz długości 64
+i będziemy robić xor tym kluczem
+w odpowiedzi otrzymamy kryptogramy c1, c2 ... cn
+bierzemy jedną kolumnę, jeżeli nie ma spacji to nie można odtworzyć tekstu jawnego, w większości przypadków jakaś będzie
+
+rozpatrujemy
+c1+c2
+c1 + ci jeżeli w jednym z nich jest spacja - ci to spacja => ci = spacja, c1 + ci XOR spacja = c1, (c1 XOR c2) Xor c1 =  c2
+
+
+usuwamy cyfry, znaki przestankowe
+-p przygotowuje tekst
+-e oblicza xor i z zapisuje
+-k czyta krypot i robi dekrypt i miejmy nadzieję że będzie to samo co plain, nie musi być 1:1 to samo tam, np. zrobić # jako spację
