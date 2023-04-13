@@ -1,46 +1,67 @@
+"""
+Autor: Karol Krawczykiewicz
+"""
+
 from PIL import Image
-import hashlib
+from hashlib import sha1
 import random
 
-block_size = 8
 
-# Read input image
-input_image = Image.open("plain.bmp")
-size = input_image.size
-image_data = input_image.tobytes()
+def ecb(obraz_w_bitach, rozmiar, wielkosc_blokow, klucze):
+    zaszyfrowany_obraz = []
 
-# Read key from file
-try:
-    with open("key.txt", "rb") as f:
-        key = f.read()
-    if len(key) != block_size:
-        raise ValueError(f"Key size must be {block_size} bytes")
-except FileNotFoundError:
-    keys = []
-    for x in range(block_size):
-        key = hashlib.md5(str(random.random() * x).encode("UTF-8")).digest()
-        keys.append(key)
-# ECB
-new_data = []
-for x in range(size[0]):
-    for y in range(size[1]):
-        pp = x * size[0] + y  # pixel position
-        op = image_data[pp]  # original pixel
-        pta = op ^ key[y % block_size]  # pixel to add
-        new_data.append(pta)
+    szerokosc = rozmiar[0]
+    wysokosc = rozmiar[1]
 
-output_image = input_image.copy()
-output_image.frombytes(bytes(new_data))
-output_image.save("ecb_crypto.bmp")
-print("ECB Done")
+    for wiersz in range(szerokosc):
+        for kolumna in range(wysokosc):
+            pozycja_pixela = wiersz * szerokosc + kolumna
+            oryginalny_pixel = obraz_w_bitach[pozycja_pixela]
 
-# CBC
-new_key = 13
-new_data = [image_data[0] ^ new_key]
-for x in range(size[0] * size[1]):
-    new_data.append(new_data[x - 1] ^ image_data[x] ^ key[x % block_size])
+            nowy_pixel = oryginalny_pixel ^ klucze[wiersz % wielkosc_blokow][kolumna % wielkosc_blokow]
+            zaszyfrowany_obraz.append(nowy_pixel)
 
-output_image = input_image.copy()
-output_image.frombytes(bytes(new_data))
-output_image.save("cbc_crypto.bmp")
-print("CBC Done")
+    obraz_ecb = Image.new("L", rozmiar)
+    obraz_ecb.putdata(zaszyfrowany_obraz)
+    obraz_ecb.save("ecb_crypto.bmp")
+    print("Zaszyfrowano ECB")
+
+
+def cbc(obraz_w_bitach, rozmiar, klucze, wielkosc_blokow):
+    szerokosc = rozmiar[0]
+    wysokosc = rozmiar[1]
+
+    #poczatek_szyfru = random.randint(1, 50)
+    wektor_poczatkowy = 0
+    zaszyfrowany_obraz = [obraz_w_bitach[0] ^ wektor_poczatkowy]
+
+    for i in range(szerokosc * wysokosc):
+        blok = zaszyfrowany_obraz[i - 1] ^ obraz_w_bitach[i] ^ klucze[i % wielkosc_blokow**2 // wielkosc_blokow][i % wielkosc_blokow]
+
+        zaszyfrowany_obraz.append(blok)
+
+    obraz_cbc = Image.new("L", rozmiar)
+    obraz_cbc.putdata(zaszyfrowany_obraz[1:])
+    obraz_cbc.save("cbc_crypto.bmp")
+
+    print("Zaszyfrowano CBC")
+
+
+def generowanie_klucza(wielkosc_blokow):
+    klucze = []
+
+    for i in range(wielkosc_blokow):
+        klucz = sha1(str(random.random()).encode("UTF-8")).digest()
+        klucze.append(klucz)
+    return klucze
+
+
+if __name__ == "__main__":
+    obraz = Image.open("plain.bmp")
+    wielkosc_blokow = 8
+    obraz_w_bitach = obraz.tobytes()
+    rozmiar = obraz.size
+
+    klucze = generowanie_klucza(wielkosc_blokow)
+    ecb(obraz_w_bitach, rozmiar, wielkosc_blokow, klucze)
+    cbc(obraz_w_bitach, rozmiar, klucze, wielkosc_blokow)
