@@ -31,13 +31,11 @@ def cbc(obraz_w_bitach, rozmiar, klucze, wielkosc_blokow):
     szerokosc = rozmiar[0]
     wysokosc = rozmiar[1]
 
-    #poczatek_szyfru = random.randint(1, 50)
     wektor_poczatkowy = 0
     zaszyfrowany_obraz = [obraz_w_bitach[0] ^ wektor_poczatkowy]
 
     for i in range(szerokosc * wysokosc):
         blok = zaszyfrowany_obraz[i - 1] ^ obraz_w_bitach[i] ^ klucze[i % wielkosc_blokow**2 // wielkosc_blokow][i % wielkosc_blokow]
-
         zaszyfrowany_obraz.append(blok)
 
     obraz_cbc = Image.new("L", rozmiar)
@@ -57,7 +55,7 @@ def generowanie_klucza(wielkosc_blokow):
 
 
 if __name__ == "__main__":
-    obraz = Image.open("plain.bmp")
+    obraz = Image.open("plain24bit.bmp")
     wielkosc_blokow = 8
     obraz_w_bitach = obraz.tobytes()
     rozmiar = obraz.size

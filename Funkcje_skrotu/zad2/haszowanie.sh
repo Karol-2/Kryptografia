@@ -1,0 +1,26 @@
+#!/bin/bash
+
+touch diff-pary.txt
+
+cat hash-.pdf personal.txt | md5sum >> diff-pary.txt
+cat hash-.pdf personal_.txt | md5sum >> diff-pary.txt
+
+cat hash-.pdf personal.txt | sha1sum >> diff-pary.txt
+cat hash-.pdf personal_.txt | sha1sum >> diff-pary.txt
+
+cat hash-.pdf personal.txt | sha224sum >> diff-pary.txt
+cat hash-.pdf personal_.txt | sha224sum >> diff-pary.txt
+
+cat hash-.pdf personal.txt | sha256sum >> diff-pary.txt
+cat hash-.pdf personal_.txt | sha256sum >> diff-pary.txt
+
+cat hash-.pdf personal.txt | sha384sum >> diff-pary.txt
+cat hash-.pdf personal_.txt | sha384sum >> diff-pary.txt
+
+cat hash-.pdf personal.txt | sha512sum >> diff-pary.txt
+cat hash-.pdf personal_.txt | sha512sum >> diff-pary.txt
+
+cat hash-.pdf personal.txt | b2sum >> diff-pary.txt
+cat hash-.pdf personal_.txt | b2sum >> diff-pary.txt
+
+echo "Done"
