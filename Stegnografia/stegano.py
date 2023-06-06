@@ -4,7 +4,7 @@ Autor: Karol Krawczykiewicz
 import re
 
 global ustalona_dlugosc
-ustalona_dlugosc = 4
+ustalona_dlugosc = 8
 '''
 Aktualnie działa opcja 1, 
 tylko operuje onw wyłącznie na 0 i 1, i na długość tylko 4
@@ -76,36 +76,37 @@ def zakodowanie_opcja2():
     except FileNotFoundError:
         print("ERROR, Brak pliku mess.txt!")
         return
+
     try:
         with open("cover.html", 'r', encoding='utf-8') as file:
             cover = file.read()
+            cover = cover.replace("  ", " ")
     except FileNotFoundError:
         print("ERROR, Brak pliku cover.html!")
         return
-    # TODO: dodać usuwanie podwójnych spacji na początku
 
     number_of_spaces = len(re.findall(r' {1,2}', cover))
 
     if len(message) > number_of_spaces:
         print('Nośnik jest za mały, aby zmieścić wiadomość')
         return
-    encoded_cover = cover.split('\n')
-    for index_mes in range(len(message)):
-        for index_cover in range(len(encoded_cover)):
-            if " " not in encoded_cover[index_cover]:
-                print("nie ma")
-                continue
-            else:
-                print("jest")
 
-            if index_mes < len(message) and message[index_mes] == '1':
-               # print(index_cover)
-                content = str(encoded_cover[index_cover])
-                content = content.replace(' ', ' ' + ' ')
-                encoded_cover[index_cover] = content
+    modified_code = ""
+    message_index = 0
+
+    for char in cover:
+        if char == " " and message_index < len(message):
+            if message[message_index] == "1":
+                modified_code += "  "  # zamienia spację na podwójną spację
+            else:
+                modified_code += char  # nie zmienia spacji
+            message_index += 1
+        else:
+            modified_code += char
 
     with open("watermark.html", 'w', encoding='utf-8') as file:
-        for i in encoded_cover:
+        cover_tab = modified_code.split('\n')
+        for i in cover_tab:
             file.write(i + "\n")
 
 
@@ -117,41 +118,48 @@ def odkodowanie_opcja2():
         print("ERROR, Brak pliku watermark.html!")
         return
 
-    spaces = re.findall(r' {1,2}', encoded_cover)
-    decoded_message = ''
-    for i, space in enumerate(spaces):
-        if i < ustalona_dlugosc:
-            if space.endswith(' '):
-                decoded_message += '1'
-            else:
-                decoded_message += '0'
+    decoded_message = ""
+    i = 0
+    while i < len(encoded_cover):
+        current = encoded_cover[i]
+        next = encoded_cover[i+1]
+        if len(decoded_message) == ustalona_dlugosc:
+            break
+
+        if current == " " and next != " ":
+            decoded_message += '0'
+        elif current== " " and next == " ":
+            decoded_message += "1"
+            i+=2
+            continue
+        i+=1
 
     with open("detect.txt", 'w') as file:
         file.write(decoded_message)
-#
-#
-# def encode_option3(message, cover):
-#     invalid_attributes = ['margin-botom', 'lineheight']
-#     if len(message) > len(invalid_attributes):
-#         raise ValueError('Nośnik jest za mały, aby zmieścić wiadomość')
-#     encoded_cover = cover
-#     for i, attr in enumerate(invalid_attributes):
-#         if i < len(message):
-#             encoded_cover = encoded_cover.replace(attr, message[i])
-#     return encoded_cover
-#
-#
-# def decode_option3(encoded_cover):
-#     invalid_attributes = ['margin-botom', 'lineheight']
-#     decoded_message = ''
-#     for attr in invalid_attributes:
-#         if attr in encoded_cover:
-#             decoded_message += '1'
-#         else:
-#             decoded_message += '0'
-#     return decoded_message
-#
-#
+
+
+def encode_option3(message, cover):
+    invalid_attributes = ['margin-botom', 'lineheight']
+    if len(message) > len(invalid_attributes):
+        raise ValueError('Nośnik jest za mały, aby zmieścić wiadomość')
+    encoded_cover = cover
+    for i, attr in enumerate(invalid_attributes):
+        if i < len(message):
+            encoded_cover = encoded_cover.replace(attr, message[i])
+    return encoded_cover
+
+
+def decode_option3(encoded_cover):
+    invalid_attributes = ['margin-botom', 'lineheight']
+    decoded_message = ''
+    for attr in invalid_attributes:
+        if attr in encoded_cover:
+            decoded_message += '1'
+        else:
+            decoded_message += '0'
+    return decoded_message
+
+
 # def encode_option4(message, cover):
 #     font_tag = '<font>'
 #     open_tag = '<font>'
