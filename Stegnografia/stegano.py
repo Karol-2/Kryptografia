@@ -4,13 +4,25 @@ Autor: Karol Krawczykiewicz
 import re
 
 global USTALONA_DLUGOSC
-USTALONA_DLUGOSC = 8
-'''
-Aktualnie działa opcja 1, 
-tylko operuje onw wyłącznie na 0 i 1, i na długość tylko 4
-trzeba dodać inną wiadomość: 3f49d0a278e1b56c
-'''
-# TODO: dodać konwersję na 0 i 1 wiadomości np. 3f49d0a278e1b56c
+USTALONA_DLUGOSC = 32
+
+
+def hex_to_binary(hex_string):
+    try:
+        decimal_num = int(hex_string, 16)  # dziesiętna
+        binary_num = bin(decimal_num)[2:]  # binarna
+        return binary_num.zfill(32)
+    except ValueError:
+        return "Nieprawidłowy format szesnastkowy"
+
+
+def binary_to_hex(binary_string):
+    try:
+        decimal_num = int(binary_string, 2)  # dziesiętna
+        hex_num = hex(decimal_num)[2:]  # szesnastkowa
+        return hex_num
+    except ValueError:
+        return "Nieprawidłowy format binarny"
 
 
 def zakodowanie_opcja1():
@@ -19,6 +31,7 @@ def zakodowanie_opcja1():
     try:
         with open("mess.txt", 'r') as file:
             message = file.read()
+            message = hex_to_binary(message)
     except FileNotFoundError:
         print("ERROR, Brak pliku mess.txt!")
         return
@@ -68,7 +81,10 @@ def odkodowanie_opcja1():
                 decoded_message += '0'
 
     with open("detect.txt", 'w') as file:
+        decoded_message = binary_to_hex(decoded_message)
         file.write(decoded_message)
+        print("decoded message: ", decoded_message)
+        print("Saved to detect.txt")
 
 
 def zakodowanie_opcja2():
@@ -77,6 +93,7 @@ def zakodowanie_opcja2():
     try:
         with open("mess.txt", 'r') as file:
             message = file.read()
+            message = hex_to_binary(message)
     except FileNotFoundError:
         print("ERROR, Brak pliku mess.txt!")
         return
@@ -126,20 +143,23 @@ def odkodowanie_opcja2():
     i = 0
     while i < len(encoded_cover):
         current = encoded_cover[i]
-        next = encoded_cover[i+1]
+        next = encoded_cover[i + 1]
         if len(decoded_message) == USTALONA_DLUGOSC:
             break
 
         if current == " " and next != " ":
             decoded_message += '0'
-        elif current== " " and next == " ":
+        elif current == " " and next == " ":
             decoded_message += "1"
-            i+=2
+            i += 2
             continue
-        i+=1
+        i += 1
 
     with open("detect.txt", 'w') as file:
+        decoded_message = binary_to_hex(decoded_message)
         file.write(decoded_message)
+        print("decoded message: ", decoded_message)
+        print("Saved to detect.txt")
 
 
 def zakodowanie_opcja3():
@@ -150,6 +170,7 @@ def zakodowanie_opcja3():
     try:
         with open("mess.txt", 'r') as file:
             message = file.read()
+            message = hex_to_binary(message)
     except FileNotFoundError:
         print("ERROR, Brak pliku mess.txt!")
         return
@@ -162,27 +183,26 @@ def zakodowanie_opcja3():
         return
 
     number_of_divs = len(re.findall(r'<div', cover))
-    if len(message)> number_of_divs:
+    if len(message) > number_of_divs:
         print('Nośnik jest za mały, aby zmieścić wiadomość')
         return
 
-
     invalid_atribute = " style=\"margin-botom: 0cm;\""
-    vaild_atribute = " style=\"margin-bottom: 0cm;\""
+    valid_atribute = " style=\"margin-bottom: 0cm;\""
 
     cover_tab = cover.split("\n")
     mes_index = 0
     while mes_index < len(message):
-        for j in range(len(cover_tab)): # po linijkach
+        for j in range(len(cover_tab)):  # po linijkach
             line = cover_tab[j]
             if "<div" in line:
                 words = line.split(" ")
-                for i in range (len(words)): # po słowach w linijce
+                for i in range(len(words)):  # po słowach w linijce
                     if mes_index >= len(message):
                         break
                     if "<div" in words[i]:
                         if message[mes_index] == '0':
-                            words[i] += vaild_atribute
+                            words[i] += valid_atribute
                         if message[mes_index] == '1':
                             words[i] += invalid_atribute
                         mes_index += 1
@@ -192,14 +212,13 @@ def zakodowanie_opcja3():
                     sentence += word + " "
                 cover_tab[j] = sentence
 
-
-
     with open("watermark.html", 'w', encoding='utf-8') as file:
         for i in cover_tab:
             file.write(i + "\n")
 
 
 def odkodowanie_opcja3():
+    # TODO: dodaj usuwanie wszystkich margin-bottom
     try:
         with open("watermark.html", 'r', encoding='utf-8') as file:
             encoded_cover = file.read()
@@ -225,51 +244,17 @@ def odkodowanie_opcja3():
             decoded_message += '1'
 
     with open("detect.txt", 'w') as file:
+        decoded_message = binary_to_hex(decoded_message)
         file.write(decoded_message)
+        print("decoded message: ", decoded_message)
+        print("Saved to detect.txt")
 
 
-# def encode_option4(message, cover):
-#     font_tag = '<font>'
-#     open_tag = '<font>'
-#     close_tag = '</font>'
-#     occurrences = cover.count(font_tag)
-#     if len(message) > occurrences:
-#         raise ValueError('Nośnik jest za mały, aby zmieścić wiadomość')
-#     encoded_cover = cover
-#     for i, bit in enumerate(message):
-#         if bit == '1':
-#             encoded_cover = encoded_cover.replace(font_tag, open_tag + font_tag, 1)
-#         else:
-#             encoded_cover = encoded_cover.replace(font_tag, close_tag + font_tag, 1)
-#     return encoded_cover
-#
-#
-# def decode_option4(encoded_cover):
-#     font_tag = '<font>'
-#     open_tag = '<font>'
-#     close_tag = '</font>'
-#     decoded_message = ''
-#     while font_tag in encoded_cover:
-#         index = encoded_cover.index(font_tag)
-#         if encoded_cover[index + len(font_tag):index + len(font_tag) + len(open_tag)] == open_tag:
-#             decoded_message += '1'
-#         else:
-#             decoded_message += '0'
-#         encoded_cover = encoded_cover[index + len(font_tag):]
-#     return decoded_message
-#
-#
-# def write_to_file(filename, content):
-#     with open(filename, 'w') as file:
-#         file.write(content)
-#
-#
-# def read_from_file(filename):
-#     with open(filename, 'r') as file:
-#         content = file.read()
-#     return content
-
-
+# TODO: opcja4
 if __name__ == '__main__':
+    zakodowanie_opcja1()
+    odkodowanie_opcja1()
+    zakodowanie_opcja2()
+    odkodowanie_opcja2()
     zakodowanie_opcja3()
     odkodowanie_opcja3()
