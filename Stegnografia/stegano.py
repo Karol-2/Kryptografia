@@ -3,8 +3,8 @@ Autor: Karol Krawczykiewicz
 """
 import re
 
-global ustalona_dlugosc
-ustalona_dlugosc = 8
+global USTALONA_DLUGOSC
+USTALONA_DLUGOSC = 8
 '''
 Aktualnie działa opcja 1, 
 tylko operuje onw wyłącznie na 0 i 1, i na długość tylko 4
@@ -14,6 +14,8 @@ trzeba dodać inną wiadomość: 3f49d0a278e1b56c
 
 
 def zakodowanie_opcja1():
+    # spacja - 1
+    # brak - 0
     try:
         with open("mess.txt", 'r') as file:
             message = file.read()
@@ -59,7 +61,7 @@ def odkodowanie_opcja1():
     decoded_message = ''
 
     for i, line in enumerate(lines):
-        if i < ustalona_dlugosc:
+        if i < USTALONA_DLUGOSC:
             if line.endswith(' '):
                 decoded_message += '1'
             else:
@@ -70,6 +72,8 @@ def odkodowanie_opcja1():
 
 
 def zakodowanie_opcja2():
+    # dwie spacje - 1
+    # jedna spacja - 0
     try:
         with open("mess.txt", 'r') as file:
             message = file.read()
@@ -97,9 +101,9 @@ def zakodowanie_opcja2():
     for char in cover:
         if char == " " and message_index < len(message):
             if message[message_index] == "1":
-                modified_code += "  "  # zamienia spację na podwójną spację
+                modified_code += "  "
             else:
-                modified_code += char  # nie zmienia spacji
+                modified_code += char
             message_index += 1
         else:
             modified_code += char
@@ -123,7 +127,7 @@ def odkodowanie_opcja2():
     while i < len(encoded_cover):
         current = encoded_cover[i]
         next = encoded_cover[i+1]
-        if len(decoded_message) == ustalona_dlugosc:
+        if len(decoded_message) == USTALONA_DLUGOSC:
             break
 
         if current == " " and next != " ":
@@ -138,26 +142,90 @@ def odkodowanie_opcja2():
         file.write(decoded_message)
 
 
-def encode_option3(message, cover):
-    invalid_attributes = ['margin-botom', 'lineheight']
-    if len(message) > len(invalid_attributes):
-        raise ValueError('Nośnik jest za mały, aby zmieścić wiadomość')
-    encoded_cover = cover
-    for i, attr in enumerate(invalid_attributes):
-        if i < len(message):
-            encoded_cover = encoded_cover.replace(attr, message[i])
-    return encoded_cover
+def zakodowanie_opcja3():
+    # zamiast p to na div
+    # prawidłowy - 0
+    # nieprawidłowy - 1
+
+    try:
+        with open("mess.txt", 'r') as file:
+            message = file.read()
+    except FileNotFoundError:
+        print("ERROR, Brak pliku mess.txt!")
+        return
+
+    try:
+        with open("cover.html", 'r', encoding='utf-8') as file:
+            cover = file.read()
+    except FileNotFoundError:
+        print("ERROR, Brak pliku cover.html!")
+        return
+
+    number_of_divs = len(re.findall(r'<div', cover))
+    if len(message)> number_of_divs:
+        print('Nośnik jest za mały, aby zmieścić wiadomość')
+        return
 
 
-def decode_option3(encoded_cover):
-    invalid_attributes = ['margin-botom', 'lineheight']
-    decoded_message = ''
-    for attr in invalid_attributes:
-        if attr in encoded_cover:
-            decoded_message += '1'
-        else:
+    invalid_atribute = " style=\"margin-botom: 0cm;\""
+    vaild_atribute = " style=\"margin-bottom: 0cm;\""
+
+    cover_tab = cover.split("\n")
+    mes_index = 0
+    while mes_index < len(message):
+        for j in range(len(cover_tab)): # po linijkach
+            line = cover_tab[j]
+            if "<div" in line:
+                words = line.split(" ")
+                for i in range (len(words)): # po słowach w linijce
+                    if mes_index >= len(message):
+                        break
+                    if "<div" in words[i]:
+                        if message[mes_index] == '0':
+                            words[i] += vaild_atribute
+                        if message[mes_index] == '1':
+                            words[i] += invalid_atribute
+                        mes_index += 1
+                        break
+                sentence = ""
+                for word in words:
+                    sentence += word + " "
+                cover_tab[j] = sentence
+
+
+
+    with open("watermark.html", 'w', encoding='utf-8') as file:
+        for i in cover_tab:
+            file.write(i + "\n")
+
+
+def odkodowanie_opcja3():
+    try:
+        with open("watermark.html", 'r', encoding='utf-8') as file:
+            encoded_cover = file.read()
+    except FileNotFoundError:
+        print("ERROR, Brak pliku watermark.html!")
+        return
+
+    html_lines = encoded_cover.split("\n")
+    decoded_message = ""
+    div_lines = []
+
+    for line in html_lines:
+        if "<div" in line:
+            div_lines.append(line)
+
+    for word in div_lines:
+        if len(decoded_message) > USTALONA_DLUGOSC:
+            break
+
+        if "margin-bottom" in word:
             decoded_message += '0'
-    return decoded_message
+        if "margin-botom" in word:
+            decoded_message += '1'
+
+    with open("detect.txt", 'w') as file:
+        file.write(decoded_message)
 
 
 # def encode_option4(message, cover):
@@ -203,5 +271,5 @@ def decode_option3(encoded_cover):
 
 
 if __name__ == '__main__':
-    zakodowanie_opcja2()
-    odkodowanie_opcja2()
+    zakodowanie_opcja3()
+    odkodowanie_opcja3()
