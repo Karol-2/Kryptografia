@@ -14,7 +14,7 @@ def hex_to_binary(hex_string):
         binary_num = bin(decimal_num)[2:]  # binarna
         return binary_num.zfill(32)
     except ValueError:
-        return "Nieprawidłowy format szesnastkowy"
+        return ""
 
 
 def binary_to_hex(binary_string):
@@ -23,7 +23,7 @@ def binary_to_hex(binary_string):
         hex_num = hex(decimal_num)[2:]  # szesnastkowa
         return hex_num
     except ValueError:
-        return "Nieprawidłowy format binarny"
+        return ""
 
 
 def zanurzanie_opcja1():
@@ -45,7 +45,7 @@ def zanurzanie_opcja1():
         return
 
     lines = page.split('\n')
-    if len(message) > len(lines):
+    if len(message) > len(lines) or message == "":
         print('ERROR!, Nośnik jest za mały, aby zmieścić wiadomość')
         return
     encoded_lines = []
@@ -113,7 +113,7 @@ def zanurzanie_opcja2():
 
     number_of_spaces = len(re.findall(r' {1,2}', cover))
 
-    if len(message) > number_of_spaces:
+    if len(message) > number_of_spaces or message == "":
         print('Nośnik jest za mały, aby zmieścić wiadomość')
         return
 
@@ -194,7 +194,7 @@ def zanurzanie_opcja3():
         return
 
     number_of_divs = len(re.findall(r'<div', cover))
-    if len(message) > number_of_divs:
+    if len(message) > number_of_divs or message == "":
         print('Nośnik jest za mały, aby zmieścić wiadomość')
         return
 
@@ -290,7 +290,7 @@ def zanurzanie_opcja4():
         return
 
     number_of_font = len(re.findall(r'<font', cover))
-    if len(message) > number_of_font:
+    if len(message) > number_of_font or message == "":
         print('Nośnik jest za mały, aby zmieścić wiadomość')
         return
 
