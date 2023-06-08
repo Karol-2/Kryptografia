@@ -2,6 +2,7 @@
 Autor: Karol Krawczykiewicz
 """
 import re
+import sys
 
 global USTALONA_DLUGOSC
 USTALONA_DLUGOSC = 32
@@ -25,9 +26,10 @@ def binary_to_hex(binary_string):
         return "Nieprawidłowy format binarny"
 
 
-def zakodowanie_opcja1():
+def zanurzanie_opcja1():
     # spacja - 1
     # brak - 0
+    print("zanurzanie opcja 1")
     try:
         with open("mess.txt", 'r') as file:
             message = file.read()
@@ -60,9 +62,11 @@ def zakodowanie_opcja1():
     with open("watermark.html", 'w', encoding='utf-8') as file:
         for i in encoded_lines:
             file.write(i + "\n")
+        print("Saved to watermark.html")
 
 
-def odkodowanie_opcja1():
+def wyodrebnianie_opcja1():
+    print("wyodrebnianie opcja 1")
     try:
         with open("watermark.html", 'r', encoding='utf-8') as file:
             encoded_cover = file.read()
@@ -87,9 +91,10 @@ def odkodowanie_opcja1():
         print("Saved to detect.txt")
 
 
-def zakodowanie_opcja2():
+def zanurzanie_opcja2():
     # dwie spacje - 1
     # jedna spacja - 0
+    print("zanurzanie opcja 2")
     try:
         with open("mess.txt", 'r') as file:
             message = file.read()
@@ -129,9 +134,11 @@ def zakodowanie_opcja2():
         cover_tab = modified_code.split('\n')
         for i in cover_tab:
             file.write(i + "\n")
+        print("Saved to watermark.html")
 
 
-def odkodowanie_opcja2():
+def wyodrebnianie_opcja2():
+    print("wyodrebnianie opcja 2")
     try:
         with open("watermark.html", 'r', encoding='utf-8') as file:
             encoded_cover = file.read()
@@ -162,10 +169,12 @@ def odkodowanie_opcja2():
         print("Saved to detect.txt")
 
 
-def zakodowanie_opcja3():
+def zanurzanie_opcja3():
     # zamiast p to na div
     # prawidłowy - 0
     # nieprawidłowy - 1
+
+    print("zanurzanie opcja 3")
 
     try:
         with open("mess.txt", 'r') as file:
@@ -178,6 +187,8 @@ def zakodowanie_opcja3():
     try:
         with open("cover.html", 'r', encoding='utf-8') as file:
             cover = file.read()
+            cover = cover.replace("margin-botom: 0cm;", "")
+            cover = cover.replace("margin-botom", "")
     except FileNotFoundError:
         print("ERROR, Brak pliku cover.html!")
         return
@@ -215,10 +226,11 @@ def zakodowanie_opcja3():
     with open("watermark.html", 'w', encoding='utf-8') as file:
         for i in cover_tab:
             file.write(i + "\n")
+        print("Saved to watermark.html")
 
 
-def odkodowanie_opcja3():
-    # TODO: dodaj usuwanie wszystkich margin-bottom
+def wyodrebnianie_opcja3():
+    print("wyodrebnianie opcja 3")
     try:
         with open("watermark.html", 'r', encoding='utf-8') as file:
             encoded_cover = file.read()
@@ -250,7 +262,7 @@ def odkodowanie_opcja3():
         print("Saved to detect.txt")
 
 
-def zakodowanie_opcja4():
+def zanurzanie_opcja4():
     # # przykład
     # <font style = "color: red;"> </font>
     #
@@ -259,6 +271,7 @@ def zakodowanie_opcja4():
     #
     # # 0
     # <font style = "color: red;" > </font> <font></font>
+    print("zanurzanie opcja 4")
     try:
         with open("mess.txt", 'r') as file:
             message = file.read()
@@ -314,9 +327,11 @@ def zakodowanie_opcja4():
     with open("watermark.html", 'w', encoding='utf-8') as file:
         for i in cover_tab:
             file.write(i + "\n")
+        print("Saved to watermark.html")
 
 
-def odkodowanie_opcja4():
+def wyodrebnianie_opcja4():
+    print("wyodrebnianie opcja 4")
     try:
         with open("watermark.html", 'r', encoding='utf-8') as file:
             encoded_cover = file.read()
@@ -333,6 +348,8 @@ def odkodowanie_opcja4():
             font_lines.append(line)
 
     for line in font_lines:
+        if len(decoded_message) == USTALONA_DLUGOSC:
+            break
         if "<font></font><font" in line:
             decoded_message += "1"
         if "</font> <font></font>" in line:
@@ -346,11 +363,28 @@ def odkodowanie_opcja4():
 
 
 if __name__ == '__main__':
-    zakodowanie_opcja1()
-    odkodowanie_opcja1()
-    zakodowanie_opcja2()
-    odkodowanie_opcja2()
-    zakodowanie_opcja3()
-    odkodowanie_opcja3()
-    zakodowanie_opcja4()
-    odkodowanie_opcja4()
+    if '-e' in sys.argv:
+        if '-1' in sys.argv:
+            zanurzanie_opcja1()
+        elif '-2' in sys.argv:
+            zanurzanie_opcja2()
+        elif '-3' in sys.argv:
+            zanurzanie_opcja3()
+        elif '-4' in sys.argv:
+            zanurzanie_opcja4()
+        else:
+            print("ERROR, zła opcja numerowa, podaj -1, -2, -3 lub -4")
+
+    elif '-d' in sys.argv:
+        if '-1' in sys.argv:
+            wyodrebnianie_opcja1()
+        elif '-2' in sys.argv:
+            wyodrebnianie_opcja2()
+        elif '-3' in sys.argv:
+            wyodrebnianie_opcja3()
+        elif '-4' in sys.argv:
+            wyodrebnianie_opcja4()
+        else:
+            print("ERROR, zła opcja numerowa, podaj -1, -2, -3 lub -4")
+    else:
+        print("ERROR, Brak opcji -d lub -e!")
