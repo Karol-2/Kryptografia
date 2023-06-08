@@ -142,14 +142,14 @@ def odkodowanie_opcja2():
     decoded_message = ""
     i = 0
     while i < len(encoded_cover):
-        current = encoded_cover[i]
-        next = encoded_cover[i + 1]
+        current_symbol = encoded_cover[i]
+        next_symbol = encoded_cover[i + 1]
         if len(decoded_message) == USTALONA_DLUGOSC:
             break
 
-        if current == " " and next != " ":
+        if current_symbol == " " and next_symbol != " ":
             decoded_message += '0'
-        elif current == " " and next == " ":
+        elif current_symbol == " " and next_symbol == " ":
             decoded_message += "1"
             i += 2
             continue
@@ -250,7 +250,101 @@ def odkodowanie_opcja3():
         print("Saved to detect.txt")
 
 
-# TODO: opcja4
+def zakodowanie_opcja4():
+    # # przykład
+    # <font style = "color: red;"> </font>
+    #
+    # # 1
+    # <font></font><font style = "color: red;"> </font>
+    #
+    # # 0
+    # <font style = "color: red;" > </font> <font></font>
+    try:
+        with open("mess.txt", 'r') as file:
+            message = file.read()
+            message = hex_to_binary(message)
+    except FileNotFoundError:
+        print("ERROR, Brak pliku mess.txt!")
+        return
+
+    try:
+        with open("cover.html", 'r', encoding='utf-8') as file:
+            cover = file.read()
+            cover = cover.replace("<font> </font>", "")
+            cover = cover.replace("<font></font>", "")
+    except FileNotFoundError:
+        print("ERROR, Brak pliku cover.html!")
+        return
+
+    number_of_font = len(re.findall(r'<font', cover))
+    if len(message) > number_of_font:
+        print('Nośnik jest za mały, aby zmieścić wiadomość')
+        return
+
+    cover_tab = cover.split("\n")
+    mes_index = 0
+    while mes_index < len(message):
+        for j in range(len(cover_tab)):  # po linijkach
+            if j == len(cover_tab):
+                break
+
+            line = cover_tab[j]
+            if "<font" in line or "</font>" in line:
+                line = line.replace("\t", "")
+                words = line.split(" ")
+                for i in range(len(words)):  # po słowach w linijce
+                    if mes_index >= len(message):
+                        break
+                    if "<font" in words[i]:
+                        if message[mes_index] == '1':
+                            text = str(words[i])
+                            words[i] = "\t" + "<font></font>" + text
+                            mes_index += 1
+                            continue
+                    if "</font>" in words[i]:
+                        if message[mes_index] == '0':
+                            words[i] += " <font></font>"
+                            mes_index += 1
+
+                sentence = ""
+                for word in words:
+                    sentence += word + " "
+                cover_tab[j] = sentence
+
+    with open("watermark.html", 'w', encoding='utf-8') as file:
+        for i in cover_tab:
+            file.write(i + "\n")
+
+
+def odkodowanie_opcja4():
+    try:
+        with open("watermark.html", 'r', encoding='utf-8') as file:
+            encoded_cover = file.read()
+    except FileNotFoundError:
+        print("ERROR, Brak pliku watermark.html!")
+        return
+
+    html_lines = encoded_cover.split("\n")
+    decoded_message = ""
+    font_lines = []
+
+    for line in html_lines:
+        if "font" in line:
+            font_lines.append(line)
+
+    for line in font_lines:
+        if "<font></font><font" in line:
+            decoded_message += "1"
+        if "</font> <font></font>" in line:
+            decoded_message += "0"
+
+    with open("detect.txt", 'w') as file:
+        decoded_message = binary_to_hex(decoded_message)
+        file.write(decoded_message)
+        print("decoded message: ", decoded_message)
+        print("Saved to detect.txt")
+
+
 if __name__ == '__main__':
     zakodowanie_opcja1()
     odkodowanie_opcja1()
@@ -258,3 +352,5 @@ if __name__ == '__main__':
     odkodowanie_opcja2()
     zakodowanie_opcja3()
     odkodowanie_opcja3()
+    zakodowanie_opcja4()
+    odkodowanie_opcja4()
